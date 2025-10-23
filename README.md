@@ -1,15 +1,12 @@
 <div align="center">
 # Star Wars MCP Server
 
-[![Open project in GitHub Codespaces](https://img.shields.io/badge/Codespaces-Open-blue?style=flat-square&logo=github)](https://codespaces.new/johnpapa/mcp-starwars?hide_repo_select=true&ref=main&quickstart=true)
-[![smithery badge](https://smithery.ai/badge/@johnpapa/mcp-starwars)](https://smithery.ai/server/@johnpapa/mcp-starwars)![Node version](https://img.shields.io/badge/Node.js->=20-3c873a?style=flat-square)
+[![Open project in GitHub Codespaces](https://img.shields.io/badge/Codespaces-Open-blue?style=flat-square&logo=github)](https://codespaces.new/N8Maynard91/mcp-starwars?hide_repo_select=true&ref=main&quickstart=true)
+[![smithery badge](https://smithery.ai/badge/@n8maynard91/mcp-starwars)](https://smithery.ai/server/@n8maynard91/mcp-starwars)![Node version](https://img.shields.io/badge/Node.js->=20-3c873a?style=flat-square)
 [![License](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](LICENSE)
 
-[![Install with NPM in VS Code](https://img.shields.io/badge/VS_Code-NPM-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://vscode.dev/redirect?url=vscode:mcp/install?%7B%22name%22%3A%22starwars%22%2C%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22%40johnpapa%2Fmcp-starwars%22%5D%2C%22env%22%3A%7B%7D%7D)
-[![Install with NPM in VS Code Insiders](https://img.shields.io/badge/VS_Code_Insiders-NPM-24bfa5?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect?url=vscode-insiders:mcp/install?%7B%22name%22%3A%22starwars%22%2C%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22%40johnpapa%2Fmcp-starwars%22%5D%2C%22env%22%3A%7B%7D%7D)
-
-[![Install with Docker in VS Code](https://img.shields.io/badge/VS_Code-Docker-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://vscode.dev/redirect?url=vscode:mcp/install?%7B%22name%22%3A%22starwars%22%2C%22command%22%3A%22docker%22%2C%22args%22%3A%5B%22run%22%2C%22-i%22%2C%22--rm%22%2C%22mcp%2Fstarwars%22%5D%2C%22env%22%3A%7B%7D%7D)
-[![Install with Docker in VS Code Insiders](https://img.shields.io/badge/VS_Code_Insiders-Docker-24bfa5?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect?url=vscode-insiders:mcp/install?%7B%22name%22%3A%22starwars%22%2C%22command%22%3A%22docker%22%2C%22args%22%3A%5B%22run%22%2C%22-i%22%2C%22--rm%22%2C%22mcp%2Fstarwars%22%5D%2C%22env%22%3A%7B%7D%7D)
+[![Install with NPM in VS Code](https://img.shields.io/badge/VS_Code-NPM-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://vscode.dev/redirect?url=vscode:mcp/install?%7B%22name%22%3A%22starwars%22%2C%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22%40n8maynard91%2Fmcp-starwars%22%5D%2C%22env%22%3A%7B%22MCP_QUIET%22%3A%22true%22%7D%7D)
+[![Install with NPM in VS Code Insiders](https://img.shields.io/badge/VS_Code_Insiders-NPM-24bfa5?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect?url=vscode-insiders:mcp/install?%7B%22name%22%3A%22starwars%22%2C%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22%40n8maynard91%2Fmcp-starwars%22%5D%2C%22env%22%3A%7B%22MCP_QUIET%22%3A%22true%22%7D%7D)
 
 [Features](#features) • [Tools](#tools) • [Setup](#setup) • [Configuring an MCP Host](#configuring-an-mcp-host)
 
@@ -18,6 +15,8 @@
 MCP Server for the [SWAPI Star Wars API](https://swapi.dev). _The main goal of the project is to show how an MCP server can be used to interact with APIs._
 
 > **Note**: All data used by this MCP server is fetched from the SWAPI documentation](https://swapi.dev).
+
+> **Fork Notice**: This is a fork of [johnpapa/mcp-starwars](https://github.com/johnpapa/mcp-starwars) with added quiet mode support to prevent JSON parsing errors in MCP clients.
 
 <a name="features"></a>
 
@@ -30,6 +29,7 @@ MCP Server for the [SWAPI Star Wars API](https://swapi.dev). _The main goal of t
 - **Built-in Caching**: Optimize performance with intelligent API response caching
 - **Cache Management**: Clear cache and view cache statistics to monitor performance
 - **Tool-based MCP Integration**: Register this server with Model Context Protocol (MCP) tools (VS Code, Claude, etc.)
+- **Quiet Mode Support**: Prevents JSON parsing errors in MCP clients by suppressing console output when `MCP_QUIET=true`
 
 <a name="tools"></a>
 
@@ -144,6 +144,49 @@ MCP Server for the [SWAPI Star Wars API](https://swapi.dev). _The main goal of t
 - **Inputs**: None
 - **Returns**: Cache hit/miss statistics, size, and performance metrics
 
+## 🔇 Quiet Mode
+
+This fork includes a **quiet mode** feature that prevents JSON parsing errors in MCP clients by suppressing console output when the `MCP_QUIET` environment variable is set to `true`.
+
+### Why Quiet Mode?
+
+MCP (Model Context Protocol) uses JSON-RPC over stdio for communication. When console output is sent to stdout, it interferes with the JSON-RPC protocol, causing parsing errors like:
+
+```
+Unexpected token '┌', "┌─────────"... is not valid JSON
+```
+
+### How to Use Quiet Mode
+
+Set the `MCP_QUIET` environment variable to `true` in your MCP client configuration:
+
+```json
+{
+  "mcpServers": {
+    "starwars": {
+      "command": "npx",
+      "args": ["-y", "@n8maynard91/mcp-starwars"],
+      "env": {
+        "MCP_QUIET": "true"
+      }
+    }
+  }
+}
+```
+
+### What Gets Suppressed
+
+When quiet mode is enabled:
+- ✅ Startup ASCII art and messages
+- ✅ Tool execution logs
+- ✅ Cache hit/miss messages
+- ✅ API request logs
+- ✅ Pagination progress messages
+
+When quiet mode is disabled (default):
+- ✅ All debug information is shown
+- ✅ Useful for development and troubleshooting
+
 <a name="setup"></a>
 
 ## 🛠️ Setup
@@ -161,13 +204,13 @@ You can install the Star Wars MCP server manually using the following commands:
 **For VS Code Stable:**
 
 ```bash
-code --add-mcp '{"name":"starwars","command":"npx","args":["-y","@johnpapa/mcp-starwars"],"env":{}}'
+code --add-mcp '{"name":"starwars","command":"npx","args":["-y","@n8maynard91/mcp-starwars"],"env":{"MCP_QUIET":"true"}}'
 ```
 
 **For VS Code Insiders:**
 
 ```bash
-code-insiders --add-mcp '{"name":"starwars","command":"npx","args":["-y","@johnpapa/mcp-starwars"],"env":{}}'
+code-insiders --add-mcp '{"name":"starwars","command":"npx","args":["-y","@n8maynard91/mcp-starwars"],"env":{"MCP_QUIET":"true"}}'
 ```
 
 #### Using VS Code Settings
@@ -181,8 +224,10 @@ code-insiders --add-mcp '{"name":"starwars","command":"npx","args":["-y","@johnp
   "servers": {
     "starwars": {
       "command": "npx",
-      "args": ["-y", "@johnpapa/mcp-starwars"],
-      "env": {}
+      "args": ["-y", "@n8maynard91/mcp-starwars"],
+      "env": {
+        "MCP_QUIET": "true"
+      }
     }
   }
 },
@@ -191,10 +236,93 @@ code-insiders --add-mcp '{"name":"starwars","command":"npx","args":["-y","@johnp
 
 ### Installing via Smithery
 
-To install Star Wars MCP Server for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@johnpapa/mcp-starwars):
+To install Star Wars MCP Server for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@n8maynard91/mcp-starwars):
 
 ```bash
-npx -y @smithery/cli install @johnpapa/mcp-starwars --client claude
+npx -y @smithery/cli install @n8maynard91/mcp-starwars --client claude
+```
+
+### Claude Desktop Configuration
+
+For Claude Desktop, add this to your `claude_desktop_config.json` file:
+
+```json
+{
+  "mcpServers": {
+    "starwars": {
+      "command": "npx",
+      "args": ["-y", "@n8maynard91/mcp-starwars"],
+      "env": {
+        "MCP_QUIET": "true"
+      }
+    }
+  }
+}
+```
+
+**Configuration file locations:**
+- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+- **Linux**: `~/.config/claude/claude_desktop_config.json`
+
+### Other AI Agent Configurations
+
+#### Cline (VS Code AI Agent)
+
+Add to your VS Code settings.json:
+
+```json
+{
+  "mcp": {
+    "servers": {
+      "starwars": {
+        "command": "npx",
+        "args": ["-y", "@n8maynard91/mcp-starwars"],
+        "env": {
+          "MCP_QUIET": "true"
+        }
+      }
+    }
+  }
+}
+```
+
+#### Continue.dev
+
+Add to your `~/.continue/config.json`:
+
+```json
+{
+  "mcpServers": {
+    "starwars": {
+      "command": "npx",
+      "args": ["-y", "@n8maynard91/mcp-starwars"],
+      "env": {
+        "MCP_QUIET": "true"
+      }
+    }
+  }
+}
+```
+
+#### Cursor IDE
+
+Add to your Cursor settings:
+
+```json
+{
+  "mcp": {
+    "servers": {
+      "starwars": {
+        "command": "npx",
+        "args": ["-y", "@n8maynard91/mcp-starwars"],
+        "env": {
+          "MCP_QUIET": "true"
+        }
+      }
+    }
+  }
+}
 ```
 
 ### Run the MCP Server Locally with MCP Inspector
@@ -204,7 +332,7 @@ If you'd like to run MCP Inspector locally to test the server, follow these step
 1. Clone this repository:
 
    ```bash
-   git clone https://github.com/johnpapa/-mcp-starwars
+   git clone https://github.com/N8Maynard91/mcp-starwars
    ```
 
 1. Install the required dependencies and build the project.
@@ -240,10 +368,12 @@ If you want to associate the MCP server with a specific repo, create a `.vscode/
       // "command": "node",
       "args": [
         "-y",
-        "@johnpapa/mcp-starwars"
+        "@n8maynard91/mcp-starwars"
         // "_git/mcp-starwars/dist/index.js"
       ],
-      "env": {}
+      "env": {
+        "MCP_QUIET": "true"
+      }
     }
   }
 }
@@ -259,11 +389,13 @@ If you want to associate the MCP server with all repos, add the following to you
       // "command": "node",
       "args": [
         "-y",
-        "@johnpapa/mcp-starwars"
+        "@n8maynard91/mcp-starwars"
         // "/Users/papa/_git/mcp-starwars/dist/index.js"
         // "_git/mcp-starwars/dist/index.js"
       ],
-      "env": {}
+      "env": {
+        "MCP_QUIET": "true"
+      }
     }
   }
 }
