@@ -1,6 +1,6 @@
 {
-  "name": "@johnpapa/mcp-starwars",
-  "version": "1.0.1",
+  "name": "@n8maynard91/mcp-starwars",
+  "version": "1.0.3",
   "description": "Star Wars API MCP Server demo",
   "license": "MIT",
   "publishConfig": {
@@ -41,6 +41,7 @@
   },
   "scripts": {
     "start": "tsx ./src/index.ts",
+    "start:quiet": "MCP_QUIET=true tsx ./src/index.ts",
     "build": "npx tsc",
     "dev": "tsc && concurrently \"tsc --watch\" \"nodemon dist/index.js\"",
     "inspector": "npx @modelcontextprotocol/inspector node build/index.js",
@@ -64,7 +65,7 @@
     "semantic-release-npm-github": "^5.0.0",
     "ts-node": "^10.9.2",
     "tsx": "^4.19.3",
-    "typescript": "^5.8.2"
+    "typescript": "^5.9.3"
   },
   "files": [
     "dist/**/*"

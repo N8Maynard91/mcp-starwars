@@ -84,23 +84,32 @@ starWarsMcpServer.tool(
 );
 
 async function main() {
-  console.log("┌───────────────────────────────────────────────────┐");
-  console.log("│ Star Wars MCP Server                     │");
-  console.log("├───────────────────────────────────────────────────┤");
-  console.log("│ ✓ Auto-pagination for complete results            │");
-  console.log("│ ✓ Smart caching (30 min TTL)                      │");
-  console.log("│ ✓ Performance monitoring                          │");
-  console.log("└───────────────────────────────────────────────────┘");
+  // Check for quiet mode
+  const isQuiet = process.env.MCP_QUIET === 'true' || process.env.NODE_ENV === 'production';
+  
+  if (!isQuiet) {
+    console.log("┌───────────────────────────────────────────────────┐");
+    console.log("│ Star Wars MCP Server                     │");
+    console.log("├───────────────────────────────────────────────────┤");
+    console.log("│ ✓ Auto-pagination for complete results            │");
+    console.log("│ ✓ Smart caching (30 min TTL)                      │");
+    console.log("│ ✓ Performance monitoring                          │");
+    console.log("└───────────────────────────────────────────────────┘");
 
-  const toolCount = Object.keys(starwarsTools).length;
-  console.log(`Registered ${toolCount} tools`);
+    const toolCount = Object.keys(starwarsTools).length;
+    console.log(`Registered ${toolCount} tools`);
 
-  const transport = new StdioServerTransport();
-  console.log("Connecting to transport...");
+    const transport = new StdioServerTransport();
+    console.log("Connecting to transport...");
 
-  await starWarsMcpServer.connect(transport);
-  console.log("Star Wars MCP Server running successfully!");
-  console.log("Use tools like get_planets, get_people, etc. with fetchAllPages=true to get all results");
+    await starWarsMcpServer.connect(transport);
+    console.log("Star Wars MCP Server running successfully!");
+    console.log("Use tools like get_planets, get_people, etc. with fetchAllPages=true to get all results");
+  } else {
+    // Quiet mode - just connect without any output
+    const transport = new StdioServerTransport();
+    await starWarsMcpServer.connect(transport);
+  }
 }
 
 main().catch((err) => {
