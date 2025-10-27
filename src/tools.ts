@@ -22,6 +22,7 @@ import {
   ListResourceSchema,
 } from "./schemas.js";
 import { fetchWithCache, fetchAllPages, getCacheStats, clearCache } from "./swapiService.js";
+import { logger } from "./logger.js";
 
 // Define the tool interface
 export interface SwapiTool<T extends z.ZodType<any, any>> {
@@ -211,12 +212,12 @@ export const mcpToolDefinitions = Object.entries(starwarsTools).reduce(
       handler: async (args: any) => {
         try {
           const result = await tool.handler(args);
-          console.log(`Completed tool request: ${name}`);
+          logger.log(`Completed tool request: ${name}`);
           return {
             content: [{ type: "text", text: JSON.stringify(result) }],
           };
         } catch (error) {
-          console.error(`Error processing ${name}:`, error);
+          logger.error(`Error processing ${name}:`, error);
           if (error instanceof Error) {
             throw new Error(`Error processing ${name}: ${error.message}`);
           }
@@ -251,7 +252,7 @@ export const listTools = async () => {
  * MCP tool call function for the server capabilities
  */
 export const callTool = async (name: string, args: any) => {
-  console.log(`Processing tool request: ${name}`);
+  logger.log(`Processing tool request: ${name}`);
 
   if (!(name in mcpToolDefinitions)) {
     throw new Error(`Unknown tool: ${name}`);

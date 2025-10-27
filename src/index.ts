@@ -4,6 +4,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { z } from "zod";
 import { getCustomInstructions } from "./instructions.js";
 import { starwarsTools, listTools, callTool } from "./tools.js";
+import { logger } from "./logger.js";
 
 const instructions = getCustomInstructions();
 
@@ -41,13 +42,13 @@ Object.entries(starwarsTools).forEach(([name, tool]) => {
   // and call the tool handler with the validated arguments.
   starWarsMcpServer.tool(name, tool.description, schemaShape, async (args, extra) => {
     try {
-      console.log(`[Tool] Executing ${name} with args:`, JSON.stringify(args));
+      logger.log(`[Tool] Executing ${name} with args:`, JSON.stringify(args));
       const startTime = Date.now();
 
       const result = await tool.handler(args as any);
 
       const duration = Date.now() - startTime;
-      console.log(`[Tool] ${name} completed in ${duration}ms`);
+      logger.log(`[Tool] ${name} completed in ${duration}ms`);
 
       // Return properly formatted response following MCP content format requirements
       return {
@@ -59,7 +60,7 @@ Object.entries(starwarsTools).forEach(([name, tool]) => {
         ],
       };
     } catch (error) {
-      console.error(`[Error] Failed executing ${name}:`, error);
+      logger.error(`[Error] Failed executing ${name}:`, error);
       return {
         content: [
           {
@@ -88,23 +89,23 @@ async function main() {
   const isQuiet = process.env.MCP_QUIET === 'true' || process.env.NODE_ENV === 'production';
   
   if (!isQuiet) {
-    console.log("┌───────────────────────────────────────────────────┐");
-    console.log("│ Star Wars MCP Server                     │");
-    console.log("├───────────────────────────────────────────────────┤");
-    console.log("│ ✓ Auto-pagination for complete results            │");
-    console.log("│ ✓ Smart caching (30 min TTL)                      │");
-    console.log("│ ✓ Performance monitoring                          │");
-    console.log("└───────────────────────────────────────────────────┘");
+    logger.log("┌───────────────────────────────────────────────────┐");
+    logger.log("│ Star Wars MCP Server                     │");
+    logger.log("├───────────────────────────────────────────────────┤");
+    logger.log("│ ✓ Auto-pagination for complete results            │");
+    logger.log("│ ✓ Smart caching (30 min TTL)                      │");
+    logger.log("│ ✓ Performance monitoring                          │");
+    logger.log("└───────────────────────────────────────────────────┘");
 
     const toolCount = Object.keys(starwarsTools).length;
-    console.log(`Registered ${toolCount} tools`);
+    logger.log(`Registered ${toolCount} tools`);
 
     const transport = new StdioServerTransport();
-    console.log("Connecting to transport...");
+    logger.log("Connecting to transport...");
 
     await starWarsMcpServer.connect(transport);
-    console.log("Star Wars MCP Server running successfully!");
-    console.log("Use tools like get_planets, get_people, etc. with fetchAllPages=true to get all results");
+    logger.log("Star Wars MCP Server running successfully!");
+    logger.log("Use tools like get_planets, get_people, etc. with fetchAllPages=true to get all results");
   } else {
     // Quiet mode - just connect without any output
     const transport = new StdioServerTransport();
@@ -113,9 +114,9 @@ async function main() {
 }
 
 main().catch((err) => {
-  console.error("┌───────────────────────────────────────────────────┐");
-  console.error("│ ERROR: Server failed to start                     │");
-  console.error("└───────────────────────────────────────────────────┘");
-  console.error(err);
+  logger.error("┌───────────────────────────────────────────────────┐");
+  logger.error("│ ERROR: Server failed to start                     │");
+  logger.error("└───────────────────────────────────────────────────┘");
+  logger.error(err);
   process.exit(1);
 });

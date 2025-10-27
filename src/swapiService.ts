@@ -1,5 +1,6 @@
 // Star Wars API specific utilities with caching and pagination support
 import { ApiCacheService } from "./caching.js";
+import { logger } from "./logger.js";
 
 // SWAPI base URL
 const SWAPI_BASE_URL = "https://swapi.dev/api";
@@ -45,14 +46,14 @@ export async function fetchAllPages<T extends { results: Array<any>; count: numb
     // Use the standard fetchWithCache with the special all_pages prefixed endpoint
     const cachedFullResult = await fetchWithCache<T>(allPagesEndpoint, params);
     if (cachedFullResult) {
-      console.log(`[Cache Hit] Complete paginated data for ${endpoint}`);
+      logger.log(`[Cache Hit] Complete paginated data for ${endpoint}`);
       return cachedFullResult;
     }
   } catch (error) {
     // Cache miss will throw, which is expected, continue with fetching
   }
 
-  console.log(`[Pagination] Fetching all pages for ${endpoint}`);
+  logger.log(`[Pagination] Fetching all pages for ${endpoint}`);
   const startTime = Date.now();
 
   // Get the first page to understand the structure and total count
@@ -65,7 +66,7 @@ export async function fetchAllPages<T extends { results: Array<any>; count: numb
 
   // Prepare to fetch all remaining pages in parallel
   const totalPages = Math.ceil(firstPage.count / firstPage.results.length);
-  console.log(`[Pagination] Found ${totalPages} pages with ${firstPage.count} total items for ${endpoint}`);
+  logger.log(`[Pagination] Found ${totalPages} pages with ${firstPage.count} total items for ${endpoint}`);
 
   const pageRequests: Promise<T>[] = [];
 
@@ -89,7 +90,7 @@ export async function fetchAllPages<T extends { results: Array<any>; count: numb
     previous: null,
   };
   const duration = Date.now() - startTime;
-  console.log(`[Pagination] Completed fetching all ${allResults.length} items in ${duration}ms`);
+  logger.log(`[Pagination] Completed fetching all ${allResults.length} items in ${duration}ms`);
 
   // Add helper method in ApiCacheService to store with custom TTL
   // Store in cache using special endpoint to identify full result sets
@@ -97,7 +98,7 @@ export async function fetchAllPages<T extends { results: Array<any>; count: numb
     // Here we'll update the cacheUtils.ts to add a proper method for this
     storeInCache(`all_pages:${endpoint}`, result, params, 3600);
   } catch (error) {
-    console.error(`[Cache] Failed to store paginated results: ${error}`);
+    logger.error(`[Cache] Failed to store paginated results: ${error}`);
   }
 
   return result as T;
@@ -142,5 +143,5 @@ function storeInCache<T>(
 ): void {
   // Use the public storeWithCustomTtl method from the ApiCacheService
   swapiCache.storeWithCustomTtl(endpoint, data, ttlSeconds);
-  console.log(`[Cache] Stored paginated results for ${endpoint} with TTL: ${ttlSeconds || "default"}s`);
+  logger.log(`[Cache] Stored paginated results for ${endpoint} with TTL: ${ttlSeconds || "default"}s`);
 }

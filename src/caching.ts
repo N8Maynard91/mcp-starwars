@@ -1,6 +1,7 @@
 // Generic caching utilities that can be used with any API
 import axios, { AxiosError } from "axios";
 import NodeCache from "node-cache";
+import { logger } from "./logger.js";
 
 /**
  * Configuration options for creating a cache instance
@@ -108,7 +109,7 @@ export class ApiCacheService {
       const cachedData = this.cache.get<T>(cacheKey);
       if (cachedData) {
         this.stats.hits++;
-        console.log(
+        logger.log(
           `[Cache Hit] ${endpoint} (Hit Rate: ${((this.stats.hits / this.stats.totalRequests) * 100).toFixed(1)}%)`
         );
         return cachedData;
@@ -116,7 +117,7 @@ export class ApiCacheService {
     }
 
     this.stats.misses++;
-    console.log(`[Cache Miss] Fetching ${endpoint} from API`);
+    logger.log(`[Cache Miss] Fetching ${endpoint} from API`);
 
     // Determine the full URL
     const url = endpoint.startsWith("http") ? endpoint : `${this.baseUrl}${endpoint}`;
@@ -126,7 +127,7 @@ export class ApiCacheService {
       const response = await axios.get<T>(url, { params });
       const duration = Date.now() - startTime;
 
-      console.log(`[API] ${endpoint} fetched in ${duration}ms`);
+      logger.log(`[API] ${endpoint} fetched in ${duration}ms`);
 
       // Store in cache unless explicitly skipped
       if (!skipCache) {
@@ -139,12 +140,12 @@ export class ApiCacheService {
         const axiosError = error as AxiosError;
 
         if (axiosError.response?.status === 404) {
-          console.error(`[Error] Resource not found: ${endpoint}`);
+          logger.error(`[Error] Resource not found: ${endpoint}`);
           throw new Error(`Resource not found: ${endpoint}`);
         }
 
         if (axiosError.response?.status === 429) {
-          console.error(
+          logger.error(
             `[Rate Limited] API rate limit exceeded for ${endpoint}, retrying in ${retryOptions.delay}ms...`
           );
           // Wait and retry on rate limiting
@@ -155,11 +156,11 @@ export class ApiCacheService {
           });
         }
 
-        console.error(`[API Error] ${axiosError.message} for ${endpoint}`);
+        logger.error(`[API Error] ${axiosError.message} for ${endpoint}`);
         throw new Error(`API Error: ${axiosError.message}`);
       }
 
-      console.error(`[Unexpected Error] ${error instanceof Error ? error.message : String(error)}`);
+      logger.error(`[Unexpected Error] ${error instanceof Error ? error.message : String(error)}`);
       throw new Error(`Unexpected error: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
@@ -186,12 +187,12 @@ export class ApiCacheService {
       // Clear only entries related to this pattern
       const keysToDelete = this.cache.keys().filter((key) => key.includes(pattern));
       keysToDelete.forEach((key) => this.cache.del(key));
-      console.log(`[Cache] Cleared ${keysToDelete.length} entries matching pattern: ${pattern}`);
+      logger.log(`[Cache] Cleared ${keysToDelete.length} entries matching pattern: ${pattern}`);
     } else {
       // Clear all entries
       const count = this.cache.keys().length;
       this.cache.flushAll();
-      console.log(`[Cache] Cleared all ${count} cached entries`);
+      logger.log(`[Cache] Cleared all ${count} cached entries`);
     }
   }
 
@@ -214,6 +215,6 @@ export class ApiCacheService {
   storeWithCustomTtl<T>(key: string, value: T, ttl: number = 0): void {
     const cacheKey = key.startsWith("http") ? this.createCacheKey(key) : key;
     this.cache.set(cacheKey, value, ttl);
-    console.log(`[Cache] Stored "${key}" with TTL: ${ttl || "default"}s`);
+    logger.log(`[Cache] Stored "${key}" with TTL: ${ttl || "default"}s`);
   }
 }
